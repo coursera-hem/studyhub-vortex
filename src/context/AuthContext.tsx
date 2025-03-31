@@ -10,6 +10,7 @@ import {
   signInWithPopup
 } from "firebase/auth";
 import { auth } from "@/lib/firebase";
+import { useToast } from "@/hooks/use-toast";
 
 // Define the shape of our context
 interface AuthContextType {
@@ -37,6 +38,7 @@ export function useAuth() {
 export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [currentUser, setCurrentUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
+  const { toast } = useToast();
 
   // Sign up function
   const signUp = async (email: string, password: string) => {
@@ -55,8 +57,37 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   // Google sign in
   const signInWithGoogle = async () => {
-    const provider = new GoogleAuthProvider();
-    await signInWithPopup(auth, provider);
+    try {
+      const provider = new GoogleAuthProvider();
+      // Add scopes if needed
+      provider.addScope('profile');
+      provider.addScope('email');
+      
+      // Set custom parameters for mobile
+      provider.setCustomParameters({
+        prompt: 'select_account'
+      });
+      
+      await signInWithPopup(auth, provider);
+    } catch (error: any) {
+      console.error("Google sign-in error:", error);
+      
+      if (error.code === "auth/unauthorized-domain") {
+        toast({
+          title: "Authentication Error",
+          description: "Google sign-in is not available on this domain. Please use email/password instead.",
+          variant: "destructive",
+        });
+      } else {
+        toast({
+          title: "Authentication Error",
+          description: error.message || "Failed to sign in with Google",
+          variant: "destructive",
+        });
+      }
+      
+      throw error;
+    }
   };
 
   // Listen for auth state changes

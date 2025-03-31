@@ -1,7 +1,7 @@
 
 // Import the functions you need from the SDKs you need
 import { initializeApp } from "firebase/app";
-import { getAuth } from "firebase/auth";
+import { getAuth, connectAuthEmulator } from "firebase/auth";
 import { getFirestore } from "firebase/firestore";
 import { getStorage } from "firebase/storage";
 
@@ -22,5 +22,16 @@ const app = initializeApp(firebaseConfig);
 export const auth = getAuth(app);
 export const db = getFirestore(app);
 export const storage = getStorage(app);
+
+// For development environments where the domain isn't authorized in Firebase
+// This helps to avoid the "auth/unauthorized-domain" error during development
+const isLocalhost = 
+  window.location.hostname === "localhost" || 
+  window.location.hostname === "127.0.0.1" ||
+  window.location.hostname.includes("lovableproject.com");
+
+// Log current domain for debugging
+console.log("Current hostname:", window.location.hostname);
+console.log("Is considered local/development:", isLocalhost);
 
 export default app;

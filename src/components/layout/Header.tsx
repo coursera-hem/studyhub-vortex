@@ -11,11 +11,14 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { Search, Menu, X, LogIn, UserPlus, Bell, Book, BarChart, GraduationCap, LogOut } from "lucide-react";
+import { 
+  Search, Menu, X, LogIn, UserPlus, Bell, Book, BarChart, 
+  GraduationCap, LogOut, Trophy, Award 
+} from "lucide-react";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import { cn } from "@/lib/utils";
 import { useAuth } from "@/context/AuthContext";
-import { useToast } from "@/components/ui/use-toast";
+import { useToast } from "@/hooks/use-toast";
 
 interface NavItem {
   title: string;
@@ -36,9 +39,46 @@ const userNavItems: NavItem[] = [
   { title: "Certificates", href: "/certificates", icon: <GraduationCap className="mr-2 h-4 w-4" /> },
 ];
 
+interface Notification {
+  id: string;
+  title: string;
+  message: string;
+  time: string;
+  read: boolean;
+  type: string;
+}
+
 const Header = () => {
   const [isSearchVisible, setIsSearchVisible] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
+  const [notifications, setNotifications] = useState<Notification[]>([
+    {
+      id: "1",
+      type: "course-update",
+      title: "Course Updated",
+      message: "Complete Web Development has been updated with new videos",
+      time: "2 hours ago",
+      read: false
+    },
+    {
+      id: "2",
+      type: "achievement",
+      title: "Achievement Unlocked",
+      message: "You've earned the '2-Week Streak' achievement!",
+      time: "1 day ago",
+      read: false
+    },
+    {
+      id: "3",
+      type: "certificate",
+      title: "Certificate Available",
+      message: "Your certificate for Digital Marketing is ready to download",
+      time: "3 days ago",
+      read: true
+    },
+  ]);
+  const [showNotifications, setShowNotifications] = useState(false);
+  
   const { currentUser, logout } = useAuth();
   const { toast } = useToast();
   const navigate = useNavigate();
@@ -66,6 +106,18 @@ const Header = () => {
         variant: "destructive",
       });
     }
+  };
+
+  const handleNotificationClick = () => {
+    setShowNotifications(!showNotifications);
+  };
+
+  const markNotificationAsRead = (id: string) => {
+    setNotifications(
+      notifications.map((notification) =>
+        notification.id === id ? { ...notification, read: true } : notification
+      )
+    );
   };
 
   const userInitials = currentUser?.email 
@@ -227,9 +279,69 @@ const Header = () => {
             </div>
           ) : (
             <div className="flex items-center space-x-2">
-              <Button variant="ghost" size="icon" aria-label="Notifications">
-                <Bell className="h-5 w-5" />
-              </Button>
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button variant="ghost" size="icon" aria-label="Notifications" onClick={handleNotificationClick}>
+                    <Bell className="h-5 w-5" />
+                    {notifications.some(n => !n.read) && (
+                      <span className="absolute top-0 right-0 h-2 w-2 rounded-full bg-red-500"></span>
+                    )}
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="end" className="w-80">
+                  <div className="flex items-center justify-between p-4 border-b">
+                    <h3 className="font-medium">Notifications</h3>
+                    <Button variant="ghost" size="sm">Mark all as read</Button>
+                  </div>
+                  <div className="max-h-[300px] overflow-y-auto">
+                    {notifications.length === 0 ? (
+                      <div className="p-4 text-center text-sm text-muted-foreground">
+                        No notifications
+                      </div>
+                    ) : (
+                      notifications.map((notification) => (
+                        <div 
+                          key={notification.id}
+                          className={`p-4 border-b last:border-none hover:bg-muted/50 transition-colors ${
+                            notification.read ? '' : 'bg-muted/20'
+                          }`}
+                          onClick={() => markNotificationAsRead(notification.id)}
+                        >
+                          <div className="flex items-start gap-3">
+                            <div className={`p-1.5 rounded-full ${
+                              notification.type === 'course-update' ? 'bg-brand-50 text-brand-500' :
+                              notification.type === 'achievement' ? 'bg-amber-50 text-amber-500' :
+                              'bg-purple-50 text-purple-500'
+                            }`}>
+                              {notification.type === 'course-update' ? (
+                                <Book className="h-4 w-4" />
+                              ) : notification.type === 'achievement' ? (
+                                <Trophy className="h-4 w-4" />
+                              ) : (
+                                <Award className="h-4 w-4" />
+                              )}
+                            </div>
+                            <div>
+                              <h4 className="text-sm font-medium">{notification.title}</h4>
+                              <p className="text-xs text-muted-foreground mt-1">
+                                {notification.message}
+                              </p>
+                              <p className="text-xs text-muted-foreground mt-1">
+                                {notification.time}
+                              </p>
+                            </div>
+                          </div>
+                        </div>
+                      ))
+                    )}
+                  </div>
+                  <div className="p-2 border-t">
+                    <Button variant="ghost" size="sm" className="w-full">
+                      View all notifications
+                    </Button>
+                  </div>
+                </DropdownMenuContent>
+              </DropdownMenu>
 
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
