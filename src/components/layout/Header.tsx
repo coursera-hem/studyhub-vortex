@@ -10,7 +10,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { Search, Menu, X, LogIn, UserPlus, Bell, Book, BarChart, Graduation } from "lucide-react";
+import { Search, Menu, X, LogIn, UserPlus, Bell, Book, BarChart, GraduationCap } from "lucide-react";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import { cn } from "@/lib/utils";
 
@@ -30,7 +30,7 @@ const mainNavItems: NavItem[] = [
 const userNavItems: NavItem[] = [
   { title: "My Dashboard", href: "/dashboard", icon: <BarChart className="mr-2 h-4 w-4" /> },
   { title: "My Courses", href: "/my-courses", icon: <Book className="mr-2 h-4 w-4" /> },
-  { title: "Certificates", href: "/certificates", icon: <Graduation className="mr-2 h-4 w-4" /> },
+  { title: "Certificates", href: "/certificates", icon: <GraduationCap className="mr-2 h-4 w-4" /> },
 ];
 
 const Header = () => {
@@ -50,7 +50,7 @@ const Header = () => {
             <SheetContent side="left">
               <div className="grid gap-6 py-6">
                 <Link to="/" className="flex items-center space-x-2">
-                  <Graduation className="h-6 w-6 text-brand-500" />
+                  <GraduationCap className="h-6 w-6 text-brand-500" />
                   <span className="font-bold text-xl">StudyHub</span>
                 </Link>
                 <div className="grid gap-3">
@@ -96,7 +96,7 @@ const Header = () => {
           </Sheet>
 
           <Link to="/" className="flex items-center space-x-2">
-            <Graduation className="h-6 w-6 text-brand-500" />
+            <GraduationCap className="h-6 w-6 text-brand-500" />
             <span className="hidden font-bold sm:inline-block text-xl">StudyHub</span>
           </Link>
 

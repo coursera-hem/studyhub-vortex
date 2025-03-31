@@ -1,4 +1,3 @@
-
 import React, { useState } from "react";
 import Layout from "@/components/layout/Layout";
 import { 
@@ -35,7 +34,7 @@ import {
   Settings,
   Bell,
   Heart,
-  Graduation,
+  GraduationCap,
   Users,
   MessageSquare
 } from "lucide-react";
@@ -688,7 +687,7 @@ const UserDashboard = () => {
                         <div key={course.id} className="border rounded-lg p-4">
                           <div className="flex justify-between items-start">
                             <div className="flex items-center">
-                              <Graduation className="h-8 w-8 text-brand-500 mr-3" />
+                              <GraduationCap className="h-8 w-8 text-brand-500 mr-3" />
                               <div>
                                 <h3 className="font-medium line-clamp-1">{course.title}</h3>
                                 <p className="text-xs text-muted-foreground">

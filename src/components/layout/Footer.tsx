@@ -1,6 +1,6 @@
 
 import { Link } from "react-router-dom";
-import { Graduation, Facebook, Twitter, Instagram, Youtube, Mail } from "lucide-react";
+import { GraduationCap, Facebook, Twitter, Instagram, Youtube, Mail } from "lucide-react";
 import { Separator } from "@/components/ui/separator";
 
 const Footer = () => {
@@ -10,7 +10,7 @@ const Footer = () => {
         <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
           <div className="space-y-4">
             <Link to="/" className="flex items-center space-x-2">
-              <Graduation className="h-6 w-6 text-brand-500" />
+              <GraduationCap className="h-6 w-6 text-brand-500" />
               <span className="font-bold text-xl">StudyHub</span>
             </Link>
             <p className="text-muted-foreground text-sm">

@@ -7,7 +7,7 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
 import { useToast } from "@/components/ui/use-toast";
-import { Graduation, Mail, Lock, AlertCircle } from "lucide-react";
+import { GraduationCap, Mail, Lock, AlertCircle } from "lucide-react";
 import Layout from "@/components/layout/Layout";
 
 const Login = () => {
@@ -47,7 +47,7 @@ const Login = () => {
         <Card className="mx-auto">
           <CardHeader className="space-y-1">
             <div className="flex justify-center mb-2">
-              <Graduation className="h-10 w-10 text-brand-500" />
+              <GraduationCap className="h-10 w-10 text-brand-500" />
             </div>
             <CardTitle className="text-2xl text-center">Sign in to StudyHub</CardTitle>
             <CardDescription className="text-center">
