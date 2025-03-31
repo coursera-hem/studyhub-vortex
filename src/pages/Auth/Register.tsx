@@ -9,6 +9,9 @@ import { Separator } from "@/components/ui/separator";
 import { useToast } from "@/components/ui/use-toast";
 import { GraduationCap, Mail, Lock, User, AlertCircle } from "lucide-react";
 import Layout from "@/components/layout/Layout";
+import { useAuth } from "@/context/AuthContext";
+import { doc, setDoc } from "firebase/firestore";
+import { db } from "@/lib/firebase";
 
 const Register = () => {
   const [fullName, setFullName] = useState("");
@@ -18,6 +21,7 @@ const Register = () => {
   const [error, setError] = useState("");
   const { toast } = useToast();
   const navigate = useNavigate();
+  const { signUp, signInWithGoogle, currentUser } = useAuth();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -25,16 +29,56 @@ const Register = () => {
     setError("");
 
     try {
-      // This would be replaced with actual registration logic
-      setTimeout(() => {
-        toast({
-          title: "Registration successful",
-          description: "Welcome to StudyHub! You can now sign in.",
+      await signUp(email, password);
+      
+      // Create a user profile in Firestore
+      if (currentUser) {
+        await setDoc(doc(db, "users", currentUser.uid), {
+          fullName,
+          email,
+          createdAt: new Date(),
+          role: "student"
         });
-        navigate("/login");
-      }, 1500);
-    } catch (error) {
-      setError("An error occurred. Please try again later.");
+      }
+      
+      toast({
+        title: "Registration successful",
+        description: "Welcome to StudyHub! You can now sign in.",
+      });
+      navigate("/login");
+    } catch (error: any) {
+      setError(error.message || "Failed to create an account.");
+      console.error("Registration error:", error);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const handleGoogleSignIn = async () => {
+    setIsLoading(true);
+    setError("");
+
+    try {
+      await signInWithGoogle();
+      
+      // Create a user profile in Firestore if it doesn't exist
+      if (currentUser) {
+        await setDoc(doc(db, "users", currentUser.uid), {
+          fullName: currentUser.displayName || "User",
+          email: currentUser.email,
+          createdAt: new Date(),
+          role: "student"
+        }, { merge: true });
+      }
+      
+      toast({
+        title: "Registration successful",
+        description: "Welcome to StudyHub!",
+      });
+      navigate("/dashboard");
+    } catch (error: any) {
+      setError(error.message || "Failed to register with Google.");
+      console.error("Google sign-in error:", error);
     } finally {
       setIsLoading(false);
     }
@@ -131,7 +175,13 @@ const Register = () => {
               </div>
             </div>
             <div className="grid grid-cols-2 gap-4">
-              <Button variant="outline" type="button" disabled={isLoading}>
+              <Button 
+                variant="outline" 
+                type="button" 
+                onClick={handleGoogleSignIn}
+                disabled={isLoading}
+                className="w-full"
+              >
                 <svg className="mr-2 h-4 w-4" viewBox="0 0 24 24">
                   <path
                     d="M12.0003 4.75C13.7703 4.75 15.3553 5.36002 16.6053 6.54998L20.0303 3.125C17.9502 1.19 15.2353 0 12.0003 0C7.31028 0 3.25526 2.69 1.28027 6.60998L5.27028 9.70498C6.21525 6.86002 8.87028 4.75 12.0003 4.75Z"
@@ -152,7 +202,12 @@ const Register = () => {
                 </svg>
                 Google
               </Button>
-              <Button variant="outline" type="button" disabled={isLoading}>
+              <Button 
+                variant="outline" 
+                type="button" 
+                disabled={isLoading}
+                className="w-full"
+              >
                 <svg className="mr-2 h-4 w-4" fill="currentColor" viewBox="0 0 24 24">
                   <path d="M22 12.0099C22 8.70794 19.9683 5.82294 17.0386 4.38928V4.3099C17.0386 2.01865 15.1579 0.0996094 12.8969 0.0996094C11.9264 0.0996094 11.0451 0.433424 10.3549 0.995133C9.67163 0.392003 8.78631 0 7.82373 0C5.59859 0 3.77273 1.86321 3.77273 4.13156C3.77273 4.1786 3.78069 4.22265 3.7826 4.26945C1.43452 5.9691 0 8.82946 0 12.0099C0 17.5263 4.92429 22 11 22C17.0757 22 22 17.5263 22 12.0099Z" />
                 </svg>
