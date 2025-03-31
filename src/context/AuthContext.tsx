@@ -7,9 +7,12 @@ import {
   signOut,
   onAuthStateChanged,
   GoogleAuthProvider,
-  signInWithPopup
+  signInWithPopup,
+  GithubAuthProvider,
+  getAdditionalUserInfo
 } from "firebase/auth";
-import { auth } from "@/lib/firebase";
+import { auth, db } from "@/lib/firebase";
+import { doc, setDoc, getDoc } from "firebase/firestore";
 import { useToast } from "@/hooks/use-toast";
 
 // Define the shape of our context
@@ -40,9 +43,42 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [loading, setLoading] = useState(true);
   const { toast } = useToast();
 
+  // Create a user profile in Firestore if it doesn't exist
+  const createUserProfile = async (user: User, additionalData: Record<string, any> = {}) => {
+    if (!user) return;
+    
+    const userRef = doc(db, "users", user.uid);
+    const userSnap = await getDoc(userRef);
+    
+    if (!userSnap.exists()) {
+      try {
+        await setDoc(userRef, {
+          email: user.email,
+          displayName: user.displayName || additionalData.displayName || "New User",
+          photoURL: user.photoURL || "",
+          createdAt: new Date(),
+          completedCourses: 0,
+          inProgressCourses: 0,
+          savedCourses: 0,
+          certificates: 0,
+          totalHoursLearned: 0,
+          level: "Beginner",
+          xp: 0,
+          nextLevelXp: 1000,
+          streak: 0,
+          ...additionalData
+        });
+        console.log("User profile created!");
+      } catch (error) {
+        console.error("Error creating user profile:", error);
+      }
+    }
+  };
+
   // Sign up function
   const signUp = async (email: string, password: string) => {
-    await createUserWithEmailAndPassword(auth, email, password);
+    const userCredential = await createUserWithEmailAndPassword(auth, email, password);
+    await createUserProfile(userCredential.user);
   };
 
   // Login function
@@ -68,14 +104,21 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         prompt: 'select_account'
       });
       
-      await signInWithPopup(auth, provider);
+      const result = await signInWithPopup(auth, provider);
+      const isNewUser = getAdditionalUserInfo(result)?.isNewUser;
+      
+      if (isNewUser) {
+        await createUserProfile(result.user);
+      }
+      
+      return result;
     } catch (error: any) {
       console.error("Google sign-in error:", error);
       
       if (error.code === "auth/unauthorized-domain") {
         toast({
           title: "Authentication Error",
-          description: "Google sign-in is not available on this domain. Please use email/password instead.",
+          description: "This domain is not authorized for Google sign-in. Please use email/password instead or try the demo account.",
           variant: "destructive",
         });
       } else {
@@ -92,8 +135,21 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   // Listen for auth state changes
   useEffect(() => {
-    const unsubscribe = onAuthStateChanged(auth, (user) => {
+    const unsubscribe = onAuthStateChanged(auth, async (user) => {
       setCurrentUser(user);
+      if (user) {
+        // Check if user profile exists, create if it doesn't
+        try {
+          const userRef = doc(db, "users", user.uid);
+          const userSnap = await getDoc(userRef);
+          
+          if (!userSnap.exists()) {
+            await createUserProfile(user);
+          }
+        } catch (error) {
+          console.error("Error checking user profile:", error);
+        }
+      }
       setLoading(false);
     });
 

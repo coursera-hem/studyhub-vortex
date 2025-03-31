@@ -21,17 +21,31 @@ import { useEffect } from "react";
 const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
   const { currentUser, loading } = useAuth();
   
-  if (loading) return <div className="flex items-center justify-center h-screen">Loading...</div>;
+  // During initial load, show loading state
+  if (loading) {
+    return <div className="flex items-center justify-center h-screen">Loading...</div>;
+  }
   
+  // If not authenticated, redirect to login
   if (!currentUser) {
     return <Navigate to="/login" />;
   }
   
+  // If authenticated, render the protected content
   return <>{children}</>;
 };
 
-const queryClient = new QueryClient();
+// Client setup
+const queryClient = new QueryClient({
+  defaultOptions: {
+    queries: {
+      retry: 1,
+      refetchOnWindowFocus: false,
+    },
+  },
+});
 
+// App content with routes
 const AppContent = () => {
   const { currentUser } = useAuth();
   
@@ -43,8 +57,12 @@ const AppContent = () => {
   return (
     <Routes>
       <Route path="/" element={<Index />} />
-      <Route path="/login" element={<Login />} />
-      <Route path="/register" element={<Register />} />
+      <Route path="/login" element={
+        currentUser ? <Navigate to="/dashboard" /> : <Login />
+      } />
+      <Route path="/register" element={
+        currentUser ? <Navigate to="/dashboard" /> : <Register />
+      } />
       <Route path="/courses" element={<CoursesListing />} />
       <Route path="/courses/:courseId" element={<CourseDetail />} />
       <Route path="/dashboard" element={
@@ -60,6 +78,7 @@ const AppContent = () => {
   );
 };
 
+// Main App component
 const App = () => (
   <QueryClientProvider client={queryClient}>
     <AuthProvider>

@@ -6,7 +6,7 @@ import { Input } from "@/components/ui/input";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
-import { useToast } from "@/components/ui/use-toast";
+import { useToast } from "@/hooks/use-toast";
 import { GraduationCap, Mail, Lock, User, AlertCircle } from "lucide-react";
 import Layout from "@/components/layout/Layout";
 import { useAuth } from "@/context/AuthContext";
@@ -21,7 +21,7 @@ const Register = () => {
   const [error, setError] = useState("");
   const { toast } = useToast();
   const navigate = useNavigate();
-  const { signUp, signInWithGoogle, currentUser } = useAuth();
+  const { signUp, signInWithGoogle } = useAuth();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -30,16 +30,6 @@ const Register = () => {
 
     try {
       await signUp(email, password);
-      
-      // Create a user profile in Firestore
-      if (currentUser) {
-        await setDoc(doc(db, "users", currentUser.uid), {
-          fullName,
-          email,
-          createdAt: new Date(),
-          role: "student"
-        });
-      }
       
       toast({
         title: "Registration successful",
@@ -60,16 +50,6 @@ const Register = () => {
 
     try {
       await signInWithGoogle();
-      
-      // Create a user profile in Firestore if it doesn't exist
-      if (currentUser) {
-        await setDoc(doc(db, "users", currentUser.uid), {
-          fullName: currentUser.displayName || "User",
-          email: currentUser.email,
-          createdAt: new Date(),
-          role: "student"
-        }, { merge: true });
-      }
       
       toast({
         title: "Registration successful",
@@ -174,7 +154,7 @@ const Register = () => {
                 <span className="bg-background px-2 text-muted-foreground">Or continue with</span>
               </div>
             </div>
-            <div className="grid grid-cols-2 gap-4">
+            <div className="flex justify-center">
               <Button 
                 variant="outline" 
                 type="button" 
@@ -201,17 +181,6 @@ const Register = () => {
                   />
                 </svg>
                 Google
-              </Button>
-              <Button 
-                variant="outline" 
-                type="button" 
-                disabled={isLoading}
-                className="w-full"
-              >
-                <svg className="mr-2 h-4 w-4" fill="currentColor" viewBox="0 0 24 24">
-                  <path d="M22 12.0099C22 8.70794 19.9683 5.82294 17.0386 4.38928V4.3099C17.0386 2.01865 15.1579 0.0996094 12.8969 0.0996094C11.9264 0.0996094 11.0451 0.433424 10.3549 0.995133C9.67163 0.392003 8.78631 0 7.82373 0C5.59859 0 3.77273 1.86321 3.77273 4.13156C3.77273 4.1786 3.78069 4.22265 3.7826 4.26945C1.43452 5.9691 0 8.82946 0 12.0099C0 17.5263 4.92429 22 11 22C17.0757 22 22 17.5263 22 12.0099Z" />
-                </svg>
-                Facebook
               </Button>
             </div>
           </CardContent>

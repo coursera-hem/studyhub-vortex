@@ -30,6 +30,13 @@ const isLocalhost =
   window.location.hostname === "127.0.0.1" ||
   window.location.hostname.includes("lovableproject.com");
 
+// Connect to auth emulator if in development mode
+if (isLocalhost) {
+  console.log("Running in development mode, using auth emulator");
+  // Uncomment the line below when using Firebase emulators
+  // connectAuthEmulator(auth, "http://127.0.0.1:9099");
+}
+
 // Log current domain for debugging
 console.log("Current hostname:", window.location.hostname);
 console.log("Is considered local/development:", isLocalhost);
