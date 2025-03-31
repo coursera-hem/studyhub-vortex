@@ -51,7 +51,7 @@ const HeroSection = () => {
           </div>
           <div className="mx-auto lg:ml-auto">
             <img
-              src="https://source.unsplash.com/random/800x600/?students,learning"
+              src="https://media-hosting.imagekit.io/230115b5b5204bc7/e-learning-session-de-formation-en-ligne.jpg?Expires=1838047906&Key-Pair-Id=K2ZIVPTIP2VGHC&Signature=X3gpMlwXdpAUO9BrW8jAc2UN9jHJkhw3Ait1eCyBmqs5FEvIQWyRPvKalSWYmmHdeW1eimYXYdN54xyemqJSdepPD9twrbALeT412jFhZrw5BfhbcU9NJ4RYEkaNFyvsGoD4srW0CPNdt7tJSVClHA2h5NeTTRgU3uVfgu0~73hZN2K7U0qKIDBUdMngrJlqAkUdh5MeleOtiTrw-UHWDkovCiuQMFLWY0XiYYw1ruegJAMYO4lguj0MMXSQNLXdYNGJ~KzDLVAGoqDS0TKpCbxx1A-s7HjcGkE32HP1~y9tVWqn~ZJNTRqHTpvn0vEWVLV1MIZfYyFJ8H1ATjfADg__"
               alt="Students learning"
               className="w-full rounded-lg shadow-xl object-cover aspect-video sm:aspect-square lg:aspect-video"
               width={550}
