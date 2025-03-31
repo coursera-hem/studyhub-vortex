@@ -1,18 +1,21 @@
 
-import { useState } from "react";
-import { Link } from "react-router-dom";
+import { useState, useEffect } from "react";
+import { Link, useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
+  DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { Search, Menu, X, LogIn, UserPlus, Bell, Book, BarChart, GraduationCap } from "lucide-react";
+import { Search, Menu, X, LogIn, UserPlus, Bell, Book, BarChart, GraduationCap, LogOut } from "lucide-react";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import { cn } from "@/lib/utils";
+import { useAuth } from "@/context/AuthContext";
+import { useToast } from "@/components/ui/use-toast";
 
 interface NavItem {
   title: string;
@@ -24,7 +27,7 @@ const mainNavItems: NavItem[] = [
   { title: "Home", href: "/" },
   { title: "Courses", href: "/courses" },
   { title: "Categories", href: "/categories" },
-  { title: "About Us", href: "/about" },
+  { title: "About", href: "/about" },
 ];
 
 const userNavItems: NavItem[] = [
@@ -35,7 +38,39 @@ const userNavItems: NavItem[] = [
 
 const Header = () => {
   const [isSearchVisible, setIsSearchVisible] = useState(false);
-  const isLoggedIn = false; // This will be replaced with real auth state
+  const [searchQuery, setSearchQuery] = useState("");
+  const { currentUser, logout } = useAuth();
+  const { toast } = useToast();
+  const navigate = useNavigate();
+
+  const handleSearch = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (searchQuery.trim()) {
+      navigate(`/courses?search=${encodeURIComponent(searchQuery.trim())}`);
+      setIsSearchVisible(false);
+    }
+  };
+
+  const handleLogout = async () => {
+    try {
+      await logout();
+      toast({
+        title: "Logged out successfully",
+        description: "You have been logged out of your account",
+      });
+      navigate("/");
+    } catch (error) {
+      toast({
+        title: "Error",
+        description: "Failed to log out. Please try again.",
+        variant: "destructive",
+      });
+    }
+  };
+
+  const userInitials = currentUser?.email 
+    ? currentUser.email.substring(0, 2).toUpperCase() 
+    : "U";
 
   return (
     <header className="sticky top-0 z-40 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
@@ -65,7 +100,7 @@ const Header = () => {
                   ))}
                 </div>
                 <div className="grid gap-3">
-                  {!isLoggedIn ? (
+                  {!currentUser ? (
                     <>
                       <Link to="/login">
                         <Button className="w-full" variant="outline">
@@ -79,16 +114,25 @@ const Header = () => {
                       </Link>
                     </>
                   ) : (
-                    userNavItems.map((item) => (
-                      <Link
-                        key={item.title}
-                        to={item.href}
-                        className="flex w-full items-center py-2 text-sm font-medium"
+                    <>
+                      {userNavItems.map((item) => (
+                        <Link
+                          key={item.title}
+                          to={item.href}
+                          className="flex w-full items-center py-2 text-sm font-medium"
+                        >
+                          {item.icon}
+                          {item.title}
+                        </Link>
+                      ))}
+                      <Button 
+                        variant="ghost" 
+                        className="flex w-full items-center justify-start py-2 text-sm font-medium"
+                        onClick={handleLogout}
                       >
-                        {item.icon}
-                        {item.title}
-                      </Link>
-                    ))
+                        <LogOut className="mr-2 h-4 w-4" /> Sign Out
+                      </Button>
+                    </>
                   )}
                 </div>
               </div>
@@ -124,29 +168,38 @@ const Header = () => {
           >
             {isSearchVisible && (
               <div className="relative w-full flex">
-                <Input
-                  type="search"
-                  placeholder="Search courses..."
-                  className="w-full sm:pr-10"
-                />
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  className="absolute right-0 top-0 sm:hidden"
-                  onClick={() => setIsSearchVisible(false)}
-                >
-                  <X className="h-4 w-4" />
-                </Button>
+                <form onSubmit={handleSearch} className="w-full flex">
+                  <Input
+                    type="search"
+                    placeholder="Search courses..."
+                    className="w-full sm:pr-10"
+                    value={searchQuery}
+                    onChange={(e) => setSearchQuery(e.target.value)}
+                  />
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    type="button"
+                    className="absolute right-0 top-0 sm:hidden"
+                    onClick={() => setIsSearchVisible(false)}
+                  >
+                    <X className="h-4 w-4" />
+                  </Button>
+                </form>
               </div>
             )}
             {!isSearchVisible && (
               <div className="relative hidden sm:block">
-                <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
-                <Input
-                  type="search"
-                  placeholder="Search courses..."
-                  className="w-full pl-8 sm:pr-10"
-                />
+                <form onSubmit={handleSearch} className="w-full">
+                  <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
+                  <Input
+                    type="search"
+                    placeholder="Search courses..."
+                    className="w-full pl-8 sm:pr-10"
+                    value={searchQuery}
+                    onChange={(e) => setSearchQuery(e.target.value)}
+                  />
+                </form>
               </div>
             )}
           </div>
@@ -161,7 +214,7 @@ const Header = () => {
             <Search className="h-5 w-5" />
           </Button>
 
-          {!isLoggedIn ? (
+          {!currentUser ? (
             <div className="hidden sm:flex space-x-2">
               <Link to="/login">
                 <Button variant="outline" size="sm">
@@ -186,12 +239,25 @@ const Header = () => {
                     aria-label="User menu"
                   >
                     <Avatar className="h-8 w-8">
-                      <AvatarImage src="/placeholder.svg" alt="User" />
-                      <AvatarFallback>U</AvatarFallback>
+                      <AvatarImage src={currentUser.photoURL || ""} alt={currentUser.displayName || "User"} />
+                      <AvatarFallback>{userInitials}</AvatarFallback>
                     </Avatar>
                   </Button>
                 </DropdownMenuTrigger>
                 <DropdownMenuContent align="end">
+                  <div className="flex items-center justify-start gap-2 p-2">
+                    <div className="flex flex-col space-y-1 leading-none">
+                      {currentUser.displayName && (
+                        <p className="font-medium">{currentUser.displayName}</p>
+                      )}
+                      {currentUser.email && (
+                        <p className="w-[200px] truncate text-sm text-muted-foreground">
+                          {currentUser.email}
+                        </p>
+                      )}
+                    </div>
+                  </div>
+                  <DropdownMenuSeparator />
                   {userNavItems.map((item) => (
                     <DropdownMenuItem key={item.title} asChild>
                       <Link to={item.href} className="flex items-center">
@@ -200,6 +266,11 @@ const Header = () => {
                       </Link>
                     </DropdownMenuItem>
                   ))}
+                  <DropdownMenuSeparator />
+                  <DropdownMenuItem onClick={handleLogout}>
+                    <LogOut className="mr-2 h-4 w-4" />
+                    Sign out
+                  </DropdownMenuItem>
                 </DropdownMenuContent>
               </DropdownMenu>
             </div>

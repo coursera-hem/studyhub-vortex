@@ -1,4 +1,6 @@
 
+import React from "react";
+import Layout from "@/components/layout/Layout";
 import { Card, CardContent } from "@/components/ui/card";
 import { Link } from "react-router-dom";
 import { 
@@ -17,61 +19,61 @@ const categories = [
   { 
     title: "Programming", 
     count: 483, 
-    icon: <Code className="h-8 w-8 mb-2 text-brand-500" />,
+    icon: <Code className="h-12 w-12 mb-4 text-brand-500" />,
     slug: "programming" 
   },
   { 
     title: "Data Science", 
     count: 320, 
-    icon: <Database className="h-8 w-8 mb-2 text-brand-500" />,
+    icon: <Database className="h-12 w-12 mb-4 text-brand-500" />,
     slug: "data-science" 
   },
   { 
     title: "Business", 
     count: 527, 
-    icon: <Briefcase className="h-8 w-8 mb-2 text-brand-500" />,
+    icon: <Briefcase className="h-12 w-12 mb-4 text-brand-500" />,
     slug: "business" 
   },
   { 
     title: "Finance", 
     count: 235, 
-    icon: <LineChart className="h-8 w-8 mb-2 text-brand-500" />,
+    icon: <LineChart className="h-12 w-12 mb-4 text-brand-500" />,
     slug: "finance" 
   },
   { 
     title: "Design", 
     count: 189, 
-    icon: <PenTool className="h-8 w-8 mb-2 text-brand-500" />,
+    icon: <PenTool className="h-12 w-12 mb-4 text-brand-500" />,
     slug: "design" 
   },
   { 
     title: "Photography", 
     count: 156, 
-    icon: <Camera className="h-8 w-8 mb-2 text-brand-500" />,
+    icon: <Camera className="h-12 w-12 mb-4 text-brand-500" />,
     slug: "photography" 
   },
   { 
     title: "Languages", 
     count: 203, 
-    icon: <Languages className="h-8 w-8 mb-2 text-brand-500" />,
+    icon: <Languages className="h-12 w-12 mb-4 text-brand-500" />,
     slug: "languages" 
   },
   { 
     title: "Health", 
     count: 185, 
-    icon: <Heart className="h-8 w-8 mb-2 text-brand-500" />,
+    icon: <Heart className="h-12 w-12 mb-4 text-brand-500" />,
     slug: "health" 
   },
   { 
     title: "Science", 
     count: 217, 
-    icon: <Microscope className="h-8 w-8 mb-2 text-brand-500" />,
+    icon: <Microscope className="h-12 w-12 mb-4 text-brand-500" />,
     slug: "science" 
   },
   { 
     title: "Music", 
     count: 142, 
-    icon: <Music className="h-8 w-8 mb-2 text-brand-500" />,
+    icon: <Music className="h-12 w-12 mb-4 text-brand-500" />,
     slug: "music" 
   }
 ];
@@ -79,30 +81,29 @@ const categories = [
 const CategoryCard: React.FC<CategoryCardProps> = ({ title, count, icon, slug }) => {
   return (
     <Link to={`/courses?category=${slug}`}>
-      <Card className="cursor-pointer hover:border-brand-300 transition-all duration-300 hover:shadow-md">
+      <Card className="cursor-pointer h-full hover:border-brand-300 transition-all duration-300 hover:shadow-md">
         <CardContent className="p-6 flex flex-col items-center text-center">
           {icon}
-          <h3 className="font-medium mb-1">{title}</h3>
-          <p className="text-sm text-muted-foreground">{count} courses</p>
+          <h3 className="text-xl font-semibold mb-2">{title}</h3>
+          <p className="text-muted-foreground">{count} courses</p>
         </CardContent>
       </Card>
     </Link>
   );
 };
 
-const CategorySection = () => {
+const Categories = () => {
   return (
-    <section className="py-20">
-      <div className="container px-4 md:px-6">
-        <div className="flex flex-col items-center justify-center space-y-4 text-center mb-12">
-          <h2 className="text-3xl font-bold tracking-tighter sm:text-4xl md:text-5xl">
-            Browse Top Categories
-          </h2>
-          <p className="max-w-[700px] text-muted-foreground md:text-xl">
-            Explore our diverse range of categories and find the perfect course for you
+    <Layout>
+      <div className="container py-12">
+        <div className="text-center mb-12">
+          <h1 className="text-4xl font-bold mb-4">Explore Categories</h1>
+          <p className="text-muted-foreground max-w-2xl mx-auto">
+            Browse through our diverse range of course categories and find the perfect learning path for your interests and career goals
           </p>
         </div>
-        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4 md:gap-6">
+
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
           {categories.map((category) => (
             <CategoryCard
               key={category.title}
@@ -114,8 +115,8 @@ const CategorySection = () => {
           ))}
         </div>
       </div>
-    </section>
+    </Layout>
   );
 };
 
-export default CategorySection;
+export default Categories;
